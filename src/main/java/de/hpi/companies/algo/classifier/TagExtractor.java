@@ -1,10 +1,12 @@
 package de.hpi.companies.algo.classifier;
 
+import java.io.Serializable;
+
 import de.hpi.companies.algo.TagType;
 import de.hpi.companies.algo.Token;
 import de.hpi.companies.algo.features.FeatureManager;
 
-public interface TagExtractor<T> {
+public interface TagExtractor<T> extends Serializable {
 	public T getTag(Token t);
 	
 	public FeatureManager getFeatureManager();

@@ -1,6 +1,8 @@
 package de.hpi.companies.algo.classifier;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,19 +11,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-
 import de.hpi.companies.algo.TagType;
 import de.hpi.companies.algo.Token;
-import de.hpi.companies.algo.classifier.OpenNLPClassifier.Algorithm;
 import de.hpi.companies.algo.classifier.TagExtractor.SingularSTag;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.pmml.jaxbbindings.Output;
 
 public class CombinedClassifier<T extends Enum<T>&TagType<T>> extends AClassifier<T> {
 
@@ -139,20 +137,16 @@ public class CombinedClassifier<T extends Enum<T>&TagType<T>> extends AClassifie
 		return new CombinedClassifier(ex);
 	}
 	
-	@Override
-	public void write(Kryo kryo, Output output) {
-		super.write(kryo, output);
-		kryo.writeObject(output, children);
-		kryo.writeObject(output, tagClassifier);
-		kryo.writeObject(output, attributes);
+	
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.writeObject(children);
+		out.writeObject(tagClassifier);
+		out.writeObject(attributes);
 	}
-
-	@Override
-	public void read(Kryo kryo, Input input) {
-		super.read(kryo, input);
-		attributes = kryo.readObject(input, ArrayList.class);
-		children = kryo.readObject(input, ArrayList.class);
-		tagClassifier = kryo.readObject(input, RandomForest.class);
+	
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		children=(ArrayList<AClassifier<T>>) in.readObject();
+		tagClassifier=(RandomForest) in.readObject();
+		attributes=(ArrayList<Attribute>) in.readObject();
 	}
-
 }

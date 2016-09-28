@@ -1,6 +1,7 @@
 package de.hpi.companies.algo.features.specific;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,11 +31,11 @@ import de.hpi.companies.util.DBPediaExtractor;
 import utils.Ngram;
 import utils.Orderable;
 
-public class SectorMatch2 extends FloatFeature {
+public class SectorMatch2 extends FloatFeature implements Serializable {
 	
-	private DictionaryGenerator dict;
-	private Measure measure;
-	private StringMetric similarity = StringMetricBuilder.with(new CosineSimilarity<>()).tokenize(Tokenizers.qGram(3)).build();
+	private transient DictionaryGenerator dict;
+	private transient Measure measure;
+	private transient StringMetric similarity = StringMetricBuilder.with(new CosineSimilarity<>()).tokenize(Tokenizers.qGram(3)).build();
 	
 	public SectorMatch2() {
 		LowLevelHashDictionary lDict = new LowLevelHashDictionary(3);

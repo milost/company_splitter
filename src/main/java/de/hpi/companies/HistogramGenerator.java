@@ -8,13 +8,12 @@ import de.hpi.companies.algo.Tokenizer;
 
 public class HistogramGenerator {
 	public static void main(String[] args) throws IOException {
-		Tokenizer tokenizer=new Tokenizer();
 		int[] histo=new int[0];
 		int[] histo2=new int[0];
 		try(Parser p = new Parser("../data/companies.json")) {
 			while(p.hasNext()) {
 				String v = p.next();
-				int tokens=tokenizer.tokenize(v).length;
+				int tokens=Tokenizer.tokenize(v).length;
 				int l=v.length();
 				if(tokens>=histo.length)
 					histo=Arrays.copyOf(histo, tokens+1);

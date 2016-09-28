@@ -1,5 +1,8 @@
 package de.hpi.companies.algo.classifier;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,9 +12,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.output.NullOutputStream;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import com.github.powerlibraries.io.In;
+import com.github.powerlibraries.io.Out;
+import com.github.powerlibraries.io.helper.byteout.BAObjectOutputStream;
 
 import de.hpi.companies.algo.Token;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
@@ -21,6 +24,7 @@ import edu.stanford.nlp.sequences.Clique;
 import edu.stanford.nlp.sequences.FeatureFactory;
 import edu.stanford.nlp.sequences.SeqClassifierFlags;
 import edu.stanford.nlp.util.PaddedList;
+import weka.core.pmml.jaxbbindings.Output;
 
 public class StanfordCRFClassifier<T> extends AClassifier<T> {
 
@@ -123,16 +127,12 @@ public class StanfordCRFClassifier<T> extends AClassifier<T> {
 	public <NT> AClassifier<NT> createClassifier(TagExtractor<NT> ex) {
 		return new StanfordCRFClassifier<NT>(ex);
 	}
-	
-	@Override
-	public void write(Kryo kryo, Output output) {
-		super.write(kryo, output);
-		kryo.writeClassAndObject(output, classifier);
+
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		classifier.serializeClassifier(out);
 	}
 
-	@Override
-	public void read(Kryo kryo, Input input) {
-		super.read(kryo, input);
-		classifier = (CRFClassifier<Label>) kryo.readClassAndObject(input);
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		classifier = CRFClassifier.getClassifier(in);
 	}
 }

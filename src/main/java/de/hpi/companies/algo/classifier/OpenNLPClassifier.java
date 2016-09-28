@@ -5,6 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,18 +17,12 @@ import java.util.function.Function;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.google.common.primitives.Doubles;
 
 import de.hpi.companies.algo.Token;
-import opennlp.maxent.io.BinaryGISModelReader;
-import opennlp.maxent.io.BinaryGISModelWriter;
 import opennlp.model.AbstractModel;
 import opennlp.model.Event;
 import opennlp.model.EventStream;
-import opennlp.model.MaxentModel;
 import opennlp.model.TwoPassDataIndexer;
 import opennlp.perceptron.BinaryPerceptronModelReader;
 import opennlp.perceptron.BinaryPerceptronModelWriter;
@@ -39,7 +35,6 @@ public class OpenNLPClassifier<T> extends AClassifier<T> implements ProbabilityR
 	
 	private AbstractModel model;
 	private double[] probs;
-	private PerceptronTrainer trainer;
 
 	/** only for serialization **/
 	public OpenNLPClassifier() {this(null);};
@@ -49,7 +44,7 @@ public class OpenNLPClassifier<T> extends AClassifier<T> implements ProbabilityR
 	
 	@Override
 	public void train(Collection<Token[]> names) throws IOException {
-		trainer=new PerceptronTrainer();
+		PerceptronTrainer trainer=new PerceptronTrainer();
 		if(!DEBUG) {
 			try {
 				Field f = trainer.getClass().getDeclaredField("printMessages");
@@ -149,32 +144,25 @@ public class OpenNLPClassifier<T> extends AClassifier<T> implements ProbabilityR
 		return new OpenNLPClassifier<NT>(ex);
 	}
 
-	@Override
-	public void write(Kryo kryo, Output output) {
-		super.write(kryo, output);
+	private void writeObject(ObjectOutputStream out) throws IOException {
 		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			BinaryPerceptronModelWriter writer = new BinaryPerceptronModelWriter(model, new DataOutputStream(out));
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			BinaryPerceptronModelWriter writer = new BinaryPerceptronModelWriter(model, new DataOutputStream(baos));
 			writer.persist();
 			writer.close();
-			byte[] bytes = out.toByteArray();
+			byte[] bytes = baos.toByteArray();
 			System.out.println("Maxent model is "+bytes.length+" bytes long");
-			output.writeInt(bytes.length);
-			output.flush();
-			output.writeBytes(bytes);
-			output.flush();
-			output.flush();
+			out.writeInt(bytes.length);
+			out.write(bytes);
 		} catch(IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
-
-	@Override
-	public void read(Kryo kryo, Input input) {
-		super.read(kryo, input);
+	
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		try {
-			byte[] bytes = new byte[input.readInt()];
-			input.readBytes(bytes);
+			byte[] bytes = new byte[in.readInt()];
+			in.readFully(bytes);
 			BinaryPerceptronModelReader reader = new BinaryPerceptronModelReader(new DataInputStream(new ByteArrayInputStream(bytes)));
 			reader.checkModelType();
 			model = reader.constructModel();
@@ -182,5 +170,4 @@ public class OpenNLPClassifier<T> extends AClassifier<T> implements ProbabilityR
 			throw new RuntimeException(e);
 		}
 	}
-
 }

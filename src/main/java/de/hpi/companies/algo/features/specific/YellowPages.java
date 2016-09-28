@@ -35,7 +35,6 @@ public class YellowPages extends ListMatch {
 		
 		Multiset<String> general=HashMultiset.create();
 		HashMap<String, Multiset<String>> sectors = new HashMap<>();
-		Tokenizer tok = new Tokenizer();
 		
 		final Gson gson = new Gson();
 		for(String f:new String[]{"../Data/other/gelbe_seiten.json"}) {
@@ -43,7 +42,7 @@ public class YellowPages extends ListMatch {
 				.map(l ->gson.fromJson(l, JsonObject.class))
 				.forEach(c -> {
 					for(JsonElement name:c.get("aliases").getAsJsonArray()) {
-						List<String> toks=Arrays.stream(tok.tokenize(name.getAsString())).map(t -> t.getRawForm().toLowerCase()).distinct().collect(Collectors.toList());
+						List<String> toks=Arrays.stream(Tokenizer.tokenize(name.getAsString())).map(t -> t.getRawForm().toLowerCase()).distinct().collect(Collectors.toList());
 						for(JsonElement sector:c.get("branches").getAsJsonArray()) {
 							if(!sector.getAsString().isEmpty()) {
 								sectors
@@ -64,7 +63,7 @@ public class YellowPages extends ListMatch {
 				
 				sectors
 					.computeIfAbsent(industry, k->HashMultiset.create())
-					.addAll(Arrays.stream(tok.tokenize(name)).map(t -> t.getRawForm().toLowerCase()).distinct().collect(Collectors.toList()));
+					.addAll(Arrays.stream(Tokenizer.tokenize(name)).map(t -> t.getRawForm().toLowerCase()).distinct().collect(Collectors.toList()));
 			}
 		}.startQuery();
 		

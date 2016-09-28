@@ -19,7 +19,6 @@ import de.hpi.companies.algo.Tokenizer;
 public class LocationMatchTest {
 	
 	private LocationMatch lm = new LocationMatch();
-	private Tokenizer tok;
 	
 	@Parameters
     public static Collection<Object[]> data() {
@@ -44,13 +43,12 @@ public class LocationMatchTest {
 	
 	@Test
 	public void testExamples() throws IOException {
-		tok = new Tokenizer();
 		
 		assertArrayEquals(expected, test(value));
 	}
 	
 	private boolean[] test(String v) {
-		Token[] toks=tok.tokenize(v);
+		Token[] toks=Tokenizer.tokenize(v);
 		lm.calculateFeatures(toks);
 		boolean[] res = new boolean[toks.length];
 		for(int i=0;i<res.length;i++)

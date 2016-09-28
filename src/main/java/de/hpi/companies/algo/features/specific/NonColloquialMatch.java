@@ -55,13 +55,11 @@ public class NonColloquialMatch extends ListMatch {
         Out.file("companies.bin").writeObject(companies);
         System.out.println("stored companies");
         
-        Tokenizer tok = new Tokenizer();
-        
         Multiset<String> counts = HashMultiset.create();
         for(String comp:companies) {
-        	String[] compParts = Arrays.stream(tok.tokenize(comp)).map(t->t.getRawForm()).toArray(String[]::new);
+        	String[] compParts = Arrays.stream(Tokenizer.tokenize(comp)).map(t->t.getRawForm()).toArray(String[]::new);
         	for(String v:alternativeNames.get(comp)) {
-        		String[] vParts = Arrays.stream(tok.tokenize(v)).map(t->t.getRawForm()).toArray(String[]::new);
+        		String[] vParts = Arrays.stream(Tokenizer.tokenize(v)).map(t->t.getRawForm()).toArray(String[]::new);
         		counts.addAll(compare(compParts,vParts));
         		counts.addAll(compare(vParts,compParts));
         	}

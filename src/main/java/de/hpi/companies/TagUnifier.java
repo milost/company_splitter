@@ -43,11 +43,10 @@ public class TagUnifier {
 	private static void unify(File file, List<String> names) throws FileNotFoundException, IOException {
 		System.out.println("Unifying "+file);
 		List<Token[]> lines = new ArrayList<>();
-		Tokenizer tokenizer=new Tokenizer();
 		RangeMap<Integer, Token> map = TreeRangeMap.create();
 		int pos=0;
 		for(String name:names) {
-			Token[] tokens=tokenizer.tokenize(name);
+			Token[] tokens=Tokenizer.tokenize(name);
 			lines.add(tokens);
 			for(int t=0;t<tokens.length;t++) {
 				int start=pos;

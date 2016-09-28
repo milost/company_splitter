@@ -1,14 +1,13 @@
 package de.hpi.companies.algo.classifier;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 
 import de.hpi.companies.algo.Token;
 import edu.stanford.nlp.classify.Dataset;
@@ -17,6 +16,7 @@ import edu.stanford.nlp.classify.LinearClassifierFactory;
 import edu.stanford.nlp.ling.BasicDatum;
 import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.stats.Counters;
+import weka.core.pmml.jaxbbindings.Output;
 
 public class StanfordClassifier<T> extends AClassifier<T> implements ProbabilityReturner {
 
@@ -68,16 +68,11 @@ public class StanfordClassifier<T> extends AClassifier<T> implements Probability
 		return lastProbs;
 	}
 	
-	@Override
-	public void write(Kryo kryo, Output output) {
-		super.write(kryo, output);
-		kryo.writeClassAndObject(output, classifier);
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.writeObject(classifier);
 	}
-
-	@Override
-	public void read(Kryo kryo, Input input) {
-		super.read(kryo, input);
-		classifier = (LinearClassifier<String, String>) kryo.readClassAndObject(input);
+	
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		classifier=(LinearClassifier<String, String>) in.readObject();
 	}
-
 }

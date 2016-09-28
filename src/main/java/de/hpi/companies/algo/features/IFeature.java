@@ -1,8 +1,9 @@
 package de.hpi.companies.algo.features;
 
+import java.io.Serializable;
 import java.util.Collection;
 
-public interface IFeature {
+public interface IFeature extends Serializable {
 	
 	public int getFeatureSize();
 	

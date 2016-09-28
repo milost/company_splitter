@@ -23,7 +23,6 @@ public class SetGenerator {
 	
 	public ArrayList<String> training;
 	public ArrayList<String> testing;
-	private Tokenizer tokenizer=new Tokenizer();
 
 	public static void main(String[] args) throws IOException {
 		new SetGenerator().export();
@@ -65,15 +64,15 @@ public class SetGenerator {
 	
 	public void export() throws IOException {
 		for(int i=0;i<training.size()/50;i++)
-			write("training-"+i+".txt",training.subList(i*50, (i+1)*50), tokenizer);
+			write("training-"+i+".txt",training.subList(i*50, (i+1)*50));
 		for(int i=0;i<testing.size()/50;i++)
-			write("testing-"+i+".txt",testing.subList(i*50, (i+1)*50), tokenizer);
+			write("testing-"+i+".txt",testing.subList(i*50, (i+1)*50));
 	}
 
-	private static void write(String name, List<String> subList, Tokenizer tokenizer) throws IOException {
+	private static void write(String name, List<String> subList) throws IOException {
 		try(BufferedWriter out=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("../Data/sets/",name)),StandardCharsets.UTF_8))) {
 			for(String w:subList) {
-				out.write(Joiner.on(' ').join(Arrays.stream(tokenizer.tokenize(w)).map(t -> t.getRawForm()).toArray(String[]::new))+"\n");
+				out.write(Joiner.on(' ').join(Arrays.stream(Tokenizer.tokenize(w)).map(t -> t.getRawForm()).toArray(String[]::new))+"\n");
 			}
 		}
 	}

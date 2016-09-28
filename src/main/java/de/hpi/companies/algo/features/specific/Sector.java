@@ -30,7 +30,6 @@ public class Sector extends ListMatch {
 		
 		Multiset<String> general=HashMultiset.create();
 		HashMap<String, Multiset<String>> sectors = new HashMap<>();
-		Tokenizer tok = new Tokenizer();
 		
 		new DBPediaExtractor("SELECT DISTINCT ?industry, COUNT(?p), STR(?text) WHERE { ?p dbo:industry ?industry. ?industry dbo:abstract ?text. FILTER ( lang(?text) = \"de\" ) }",Integer.MAX_VALUE) {
 			
@@ -40,7 +39,7 @@ public class Sector extends ListMatch {
 					String text = cleanString(cols[2]);
 					sectors
 						.computeIfAbsent(cols[0], k->HashMultiset.create())
-						.addAll(Arrays.stream(tok.tokenize(text)).map(t -> t.getRawForm().toLowerCase()).distinct().collect(Collectors.toList()));
+						.addAll(Arrays.stream(Tokenizer.tokenize(text)).map(t -> t.getRawForm().toLowerCase()).distinct().collect(Collectors.toList()));
 				}
 			}
 		}.startQuery();

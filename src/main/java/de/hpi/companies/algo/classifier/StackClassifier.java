@@ -7,10 +7,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-
 import de.hpi.companies.algo.Token;
 import de.hpi.companies.algo.features.CalculatedFeature;
 import de.hpi.companies.algo.features.FloatFeature;
@@ -22,7 +18,6 @@ import weka.classifiers.trees.J48;
 import weka.classifiers.trees.RandomForest;
 import weka.core.DenseInstance;
 import weka.core.Instance;
-import weka.core.Instances;
 
 public class StackClassifier<T> extends AWekaClassifier<Stacking, T> {
 

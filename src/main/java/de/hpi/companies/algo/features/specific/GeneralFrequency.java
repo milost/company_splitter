@@ -42,14 +42,12 @@ public class GeneralFrequency extends FloatFeature {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		Tokenizer tokenizer=new Tokenizer();
-		
 		Multiset<String> counter = HashMultiset.create();
 		
 		try(Parser p = new Parser("../data/other/articles.json","content")) {
 			while(p.hasNext()) {
 				String v = p.next();
-				for(Token t:tokenizer.tokenize(v))
+				for(Token t:Tokenizer.tokenize(v))
 					counter.add(t.getRawForm().toLowerCase());
 			}
 		}

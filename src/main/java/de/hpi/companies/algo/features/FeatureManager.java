@@ -1,13 +1,13 @@
 package de.hpi.companies.algo.features;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.KryoSerializable;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import java.util.stream.Collectors;
 
 import de.hpi.companies.algo.Token;
 import de.hpi.companies.algo.features.specific.AbsRevWordPosition;
@@ -40,8 +40,9 @@ import de.hpi.companies.algo.features.specific.WordCut;
 import de.hpi.companies.algo.features.specific.WordPosition;
 import de.hpi.companies.algo.features.specific.YellowPages;
 import edu.stanford.nlp.sequences.Clique;
+import weka.core.pmml.jaxbbindings.Output;
 
-public class FeatureManager implements KryoSerializable {
+public class FeatureManager implements Serializable {
 	
 	public static final int DEFAULT_WINDOW_SIZE = 0;
 	
@@ -101,12 +102,17 @@ public class FeatureManager implements KryoSerializable {
 			//.add(new TfIdf())
 	;
 	
-	private final List<SimpleFeature> simpleFeatures = new ArrayList<>();
-	private final List<IComplexFeature> complexFeatures = new ArrayList<>();
-	private final List<IFeature> features = new ArrayList<>();
+	private List<SimpleFeature> simpleFeatures;
+	private List<IComplexFeature> complexFeatures;
+	private List<IFeature> features;
 	
-	public FeatureManager() {}
+	public FeatureManager() {
+		simpleFeatures = new ArrayList<>();
+		complexFeatures = new ArrayList<>();
+		features = new ArrayList<>();
+	}
 	public FeatureManager(Collection<IFeature> features) {
+		this();
 		for(IFeature f:features)
 			this.add(f);
 	}
@@ -266,16 +272,17 @@ public class FeatureManager implements KryoSerializable {
 	public String toString() {
 		return features.toString();
 	}
-	
-	@Override
-	public void read(Kryo kryo, Input input) {
-		List<IFeature> l = kryo.readObject(input, ArrayList.class);
-		for(IFeature f : l)
-			add(f);
+
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.writeObject(features);
 	}
 	
-	@Override
-	public void write(Kryo kryo, Output output) {
-		kryo.writeObject(output, new ArrayList<>(features));
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		simpleFeatures = new ArrayList<>();
+		complexFeatures = new ArrayList<>();
+		features = new ArrayList<>();
+		List<IFeature> l = (List<IFeature>)in.readObject();
+		for(IFeature f : l)
+			add(f);
 	}
 }

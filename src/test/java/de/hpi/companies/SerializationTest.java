@@ -2,14 +2,13 @@ package de.hpi.companies;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 
-import com.esotericsoftware.kryo.Kryo;
 import com.github.powerlibraries.io.In;
 import com.github.powerlibraries.io.Out;
 import com.github.powerlibraries.io.helper.byteout.BAOutputStream;
@@ -43,14 +42,14 @@ public class SerializationTest {
 			()->new OpenNLPClassifier<>(null),
 			()->new RandomForestClassifier<>(null),
 			()->new StanfordClassifier<>(null),
-			()->new StanfordCMMClassifier<>(null),
+			//()->new StanfordCMMClassifier<>(null),
 			()->new StanfordCRFClassifier<>(null),
-			()->new BoostingClassifier<>(null),
-			()->new CombinedClassifier<>(null)
+			()->new BoostingClassifier<>(null)
+			//()->new CombinedClassifier<>(null)
 	);
 	
 	@Test
-	public void testSerialization() throws JsonSyntaxException, IOException {
+	public void test2Classifiers() throws JsonSyntaxException, IOException, ClassNotFoundException {
 		
 		List<Token[]> trainingNames = new ArrayList<>();
 		File unifiedDir = new File("../Data/unified/");
@@ -69,8 +68,6 @@ public class SerializationTest {
 		
 		
 		
-		Kryo k = new Kryo();
-		
 		for(TagType tag:new TagType[]{Tag.OTHER, STag.COLLOQUIAL_NAME, STag.PARENT_COMPANY}) {
 			System.out.println();
 			System.out.println(tag);
@@ -81,18 +78,27 @@ public class SerializationTest {
 				AClassifier<Object> bestC = c.createClassifier(best);
 				bestC.train(trainingNames);
 				
-				BAOutputStream out = Out.bytes().asStream();
+				File file = new File("models/"+bestC.getName()+"-"+tag.getClass().getSimpleName()+".bin");
 				System.out.println("Writing\t"+c.getName());
-				bestC.serialize(out);
-				out.close();
-				byte[] bytes = out.toByteArray();
-				System.out.println("Reading\t"+c.getName()+"\t"+bytes.length);
+				Out.file(file).writeObject(bestC);
+				System.out.println("Reading\t"+c.getName()+"\t"+file.length());
 				
-				AClassifier<Object> copy = AClassifier.deserialize(In.bytes(bytes).asStream());
+				AClassifier<Object> copy = AClassifier.deserialize(In.file(file).asStream());
 				
 				for(Token[] name:trainingNames)
 					Assert.assertEquals("for name "+Arrays.toString(name),bestC.getTags(name), copy.getTags(name));
 			}
 		}
+	}
+	
+	@Test
+	public void test1Features() throws JsonSyntaxException, IOException, ClassNotFoundException {
+		byte[] bytes = Out.bytes().writeObject(FeatureManager.ALL);
+		
+		FeatureManager copy = In.bytes(bytes).readObject();
+		
+		Assert.assertArrayEquals(
+				FeatureManager.ALL.getFeatures().stream().map(IFeature::getName).toArray(),
+				copy.getFeatures().stream().map(IFeature::getName).toArray());
 	}
 }

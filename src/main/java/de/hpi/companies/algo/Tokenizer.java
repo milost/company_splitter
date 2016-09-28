@@ -7,17 +7,22 @@ import java.util.List;
 import de.danielnaber.jwordsplitter.GermanWordSplitter;
 
 public class Tokenizer {
-	private final GermanWordSplitter splitter;
-	private final List<Token> parts=new ArrayList<>();
-	private final List<Token> splitted=new ArrayList<>();
 	
-	public Tokenizer() throws IOException {
-		splitter =  new GermanWordSplitter(true);
+	private final static GermanWordSplitter SPLITTER;
+	
+	static {
+		try {
+			SPLITTER = new GermanWordSplitter(true);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
-	public Token[] tokenize(String in) {
-		parts.clear();
-		splitted.clear();
+	private Tokenizer() {}
+	
+	public static Token[] tokenize(String in) {
+		List<Token> parts=new ArrayList<>();
+		List<Token> splitted=new ArrayList<>();
 		
 		int start=-1;
 		int end=-1;
@@ -82,7 +87,7 @@ public class Tokenizer {
 		
 		int tokenId=0;
 		for(Token p:parts) {
-			List<String> wordParts=splitter.splitWord(p.getRawForm());
+			List<String> wordParts=SPLITTER.splitWord(p.getRawForm());
 			for(int i=0;i<wordParts.size();i++) {
 				Token split = new Token(wordParts.get(i), tokenId++, 
 						p.getRawForm().indexOf(wordParts.get(i)),i==0?p.hasWhitespaceBefore():false,i==wordParts.size()-1?p.hasWhitespaceAfter():false);

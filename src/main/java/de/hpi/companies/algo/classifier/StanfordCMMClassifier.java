@@ -1,5 +1,8 @@
 package de.hpi.companies.algo.classifier;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,11 +12,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.output.NullOutputStream;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import com.github.powerlibraries.io.In;
+import com.github.powerlibraries.io.Out;
+import com.github.powerlibraries.io.helper.byteout.BAObjectOutputStream;
 
 import de.hpi.companies.algo.Token;
+import de.hpi.companies.util.UnclosableObjectOutputStreamWrapper;
 import edu.stanford.nlp.ie.ner.CMMClassifier;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -21,6 +25,7 @@ import edu.stanford.nlp.sequences.Clique;
 import edu.stanford.nlp.sequences.FeatureFactory;
 import edu.stanford.nlp.sequences.SeqClassifierFlags;
 import edu.stanford.nlp.util.PaddedList;
+import weka.core.pmml.jaxbbindings.Output;
 
 public class StanfordCMMClassifier<T> extends AClassifier<T> {
 
@@ -127,15 +132,12 @@ public class StanfordCMMClassifier<T> extends AClassifier<T> {
 		return new StanfordCMMClassifier<>(ex);
 	}
 	
-	@Override
-	public void write(Kryo kryo, Output output) {
-		super.write(kryo, output);
-		kryo.writeClassAndObject(output, classifier);
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		//to fix the serialization of Stanford
+		classifier.serializeClassifier(new UnclosableObjectOutputStreamWrapper(out));
 	}
 
-	@Override
-	public void read(Kryo kryo, Input input) {
-		super.read(kryo, input);
-		classifier = (CMMClassifier<Label>) kryo.readClassAndObject(input);
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		classifier = (CMMClassifier<Label>) CMMClassifier.getClassifier(in);
 	}
 }

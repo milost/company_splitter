@@ -490,7 +490,7 @@ public class LegalRegex extends StringFeature {
 			"[Uu]nlimited\\s+[Cc]ompany|\\s+[Uu]\\.?\\s*[Nn]\\.?\\s*[Ll]\\.?\\s*[Tt]\\.?\\s*[Dd]\\.?|\\s+[Uu]\\.?\\s*[Ll]\\.?\\s*[Tt]\\.?\\s*[Dd]\\.?"  // Unlimited company
 	};
 	
-	private Pattern[] PATTERNS = Arrays.stream(REGEX).map(Pattern::compile).toArray(Pattern[]::new);
+	private static final Pattern[] PATTERNS = Arrays.stream(REGEX).map(Pattern::compile).toArray(Pattern[]::new);
 
 	@Override
 	public void calculateFeatures(Token[] tokens) {

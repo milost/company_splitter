@@ -1,15 +1,13 @@
 package de.hpi.companies.algo.classifier;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.KryoSerializable;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.github.powerlibraries.io.In;
 import com.github.powerlibraries.io.Out;
 
@@ -20,7 +18,7 @@ import weka.classifiers.AbstractClassifier;
 import weka.core.Attribute;
 import weka.core.Instances;
 
-public abstract class AWekaClassifier<CLASSIFIER extends AbstractClassifier, T> extends AClassifier<T> implements KryoSerializable {
+public abstract class AWekaClassifier<CLASSIFIER extends AbstractClassifier, T> extends AClassifier<T> {
 
 	protected ArrayList<Attribute>  attributes;
 	protected CLASSIFIER classifier;
@@ -38,15 +36,14 @@ public abstract class AWekaClassifier<CLASSIFIER extends AbstractClassifier, T> 
 	private void generateAttributes() {
 		attributes = new ArrayList<>();
 		attributes.add(new Attribute("tag",new ArrayList<>(Arrays.stream(possibleTags()).map(tag -> tag.toString()).collect(Collectors.toList()))));
-		attributes.addAll(
-				getFeatureManager().getSimpleFeatures().stream()
-				.map(f-> {
-					if(f instanceof FloatFeature)
-						return new Attribute(f.getName());
-					else
-						return new Attribute(f.getName(),new ArrayList<>(f.getPossibleSimplifiedValues()));
-				})
-				.collect(Collectors.toList()));
+		getFeatureManager().getSimpleFeatures().stream()
+			.map(f-> {
+				if(f instanceof FloatFeature)
+					return new Attribute(f.getName());
+				else
+					return new Attribute(f.getName(),new ArrayList<>(f.getPossibleSimplifiedValues()));
+			})
+			.forEach(attributes::add);
 		for(IComplexFeature cf:getFeatureManager().getComplexFeatures()) {
 			for(int i=0;i<cf.getFeatureSize();i++) {
 				Attribute a=new Attribute(cf.getName()+"["+i+"]",new ArrayList<>(cf.getPossibleSimplifiedValues()));
@@ -57,29 +54,12 @@ public abstract class AWekaClassifier<CLASSIFIER extends AbstractClassifier, T> 
 		columnInformation.setClass(attributes.get(0));
 	}
 
-	@Override
-	public void write(Kryo kryo, Output output) {
-		super.write(kryo, output);
-		try {
-			byte[] bytes = Out.bytes().writeObject(classifier);
-			output.writeInt(bytes.length);
-			output.writeBytes(bytes);
-		} catch(IOException e) {
-			throw new RuntimeException(e);
-		}
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.writeObject(classifier);
 	}
 	
-	@Override
-	public void read(Kryo kryo, Input input) {
-		super.read(kryo, input);
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		generateAttributes();
-		
-		try {
-			byte[] bytes = new byte[input.readInt()];
-			input.readBytes(bytes);
-			classifier=In.bytes(bytes).readObject();
-		} catch(ClassNotFoundException|IOException e) {
-			throw new RuntimeException(e);
-		}
+		classifier = (CLASSIFIER) in.readObject();
 	}
 }

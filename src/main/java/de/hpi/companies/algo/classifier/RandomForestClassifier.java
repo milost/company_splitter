@@ -7,24 +7,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.google.common.primitives.Doubles;
 
 import de.hpi.companies.algo.Token;
 import de.hpi.companies.algo.features.CalculatedFeature;
 import de.hpi.companies.algo.features.FloatFeature;
-import de.hpi.companies.algo.features.IComplexFeature;
 import weka.classifiers.trees.RandomForest;
-import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
-import weka.core.Instances;
 
 public class RandomForestClassifier<T> extends AWekaClassifier<RandomForest, T> implements ProbabilityReturner {
 
-	private Token[] lastTokens;
+	private transient Token[] lastTokens;
 	
 	/** only for serialization **/
 	public RandomForestClassifier() {this(null);};

@@ -102,11 +102,6 @@ public abstract class SimpleFeature<T> implements IFeature {
 		if (getClass() != obj.getClass())
 			return false;
 		SimpleFeature other = (SimpleFeature) obj;
-		if (simplifiedValues == null) {
-			if (other.simplifiedValues != null)
-				return false;
-		} else if (!simplifiedValues.equals(other.simplifiedValues))
-			return false;
 		if (windowSize != other.windowSize)
 			return false;
 		return true;

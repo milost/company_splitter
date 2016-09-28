@@ -107,6 +107,9 @@ public class Token {
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getFeature(SimpleFeature<T> f) {
+		if(null==features.get(f))
+			System.out.println("ARRG");
+		
 		return (T) features.get(f);
 	}
 

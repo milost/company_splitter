@@ -14,8 +14,8 @@ import de.hpi.companies.algo.features.StringFeature;
 
 public class CleanedSurface extends StringFeature {
 
-	private Map<String, String> morph;
-	private German2Stemmer stemmer=new German2Stemmer();
+	private transient Map<String, String> morph;
+	private transient German2Stemmer stemmer=new German2Stemmer();
 
 	public CleanedSurface() {
 		try {

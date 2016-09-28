@@ -26,7 +26,7 @@ public class PreTagging {
 	private static final List<Entry<Tag, Trie>> PRE = Arrays.asList(
 					ImmutablePair.of(Tag.LEGAL_FORM, new Trie()
 									.addValue("GmbH")
-									.addValue("Gesellschaft","mit","beschränkter","Haftung")
+									.addValue("Gesellschaft","mit","beschrï¿½nkter","Haftung")
 									.addValue("gesellschaft","mbH")
 									.addValue("AG","&"+"."+"Co",".")
 									.addValue("KG")
@@ -35,7 +35,7 @@ public class PreTagging {
 									.addValue("Gesellschaft","mbH")
 									.addValue("gesellschaft","UG")
 									.addValue("UG")
-									.addValue("haftungsbeschränkt")
+									.addValue("haftungsbeschrï¿½nkt")
 									.addValue("B",".","V",".")
 									.addValue("AG")
 									.addValue("mbH")
@@ -47,11 +47,11 @@ public class PreTagging {
 					),
 					ImmutablePair.of(Tag.OTHER, new Trie()
 							.addValue("und")
-							.addValue("für")
+							.addValue("fï¿½r")
 							.addValue("@")
 							.addValue("$")
-							.addValue("€")
-							.addValue("£")
+							.addValue("ï¿½")
+							.addValue("ï¿½")
 							.addValue("@")
 					),
 					ImmutablePair.of(Tag.SECTOR, new Trie()
@@ -62,7 +62,7 @@ public class PreTagging {
 					),
 					ImmutablePair.of(Tag.LOCATION, new Trie()
 							.addValue("Berlin")
-							.addValue("München")
+							.addValue("Mï¿½nchen")
 							.addValue("Deutschland")
 							.addValue("Germany")
 					),
@@ -82,7 +82,7 @@ public class PreTagging {
 							.addValue("...")
 							.addValue("\"")
 							.addValue("'")
-							.addValue("´")
+							.addValue("ï¿½")
 							.addValue("`")
 							.addValue("[")
 							.addValue("]")
@@ -106,11 +106,10 @@ public class PreTagging {
 	
 	private static void preTag(String fileName, List<String> names) throws FileNotFoundException, IOException {
 		List<Token[]> lines = new ArrayList<>();
-		Tokenizer tokenizer=new Tokenizer();
 		List<Range<Integer>> map = new ArrayList<>();
 		int pos=0;
 		for(String name:names) {
-			Token[] tokens=tokenizer.tokenize(name);
+			Token[] tokens=Tokenizer.tokenize(name);
 			lines.add(tokens);
 			for(int t=0;t<tokens.length;t++) {
 				int start=pos;

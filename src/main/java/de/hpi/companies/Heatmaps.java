@@ -48,12 +48,11 @@ public class Heatmaps {
 		classifier.train(names);
 		
 		int counter = 0;
-		Tokenizer tokenizer = new Tokenizer();
 		Table<String, String, Integer> map = HashBasedTable.create();
 		try(Parser p = new Parser("../data/companies.json")) {
 			while(p.hasNext()) {
 				String v = p.next();
-				Token[] name = tokenizer.tokenize(v);
+				Token[] name = Tokenizer.tokenize(v);
 				for(Token t:name)
 					t.setName(name);
 				FeatureManager.ALL.calculateFeatures(name);
